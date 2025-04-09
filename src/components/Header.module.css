@@ -1,0 +1,14 @@
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+header ul {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+}
