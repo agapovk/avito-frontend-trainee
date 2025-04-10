@@ -1,20 +1,33 @@
-'use client'
+'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { Task } from '@/types'
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Task } from '@/types';
 
-import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-import { Input } from '@/components/ui/input'
-import { Textarea } from './ui/textarea'
-import { statusMap } from '@/lib/utils'
+import { Input } from '@/components/ui/input';
+import { Textarea } from './ui/textarea';
+import { statusMap } from '@/lib/utils';
 
-const statuses = ['Backlog', 'InProgress', 'Done']
-const priorities = ['Low', 'Medium', 'High']
+const statuses = ['Backlog', 'InProgress', 'Done'];
+const priorities = ['Low', 'Medium', 'High'];
 
 const formSchema = z.object({
   id: z.number(),
@@ -24,7 +37,7 @@ const formSchema = z.object({
   status: z.enum(['Backlog', 'InProgress', 'Done']),
   priority: z.enum(['Low', 'Medium', 'High']),
   assigneeId: z.number(),
-})
+});
 
 export default function TaskForm(task: Task) {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -38,10 +51,10 @@ export default function TaskForm(task: Task) {
       priority: task.priority as keyof typeof formSchema.shape.priority.enum,
       assigneeId: task.assignee.id,
     },
-  })
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    console.log(values);
   }
   return (
     <Form {...form}>
@@ -172,7 +185,7 @@ export default function TaskForm(task: Task) {
         <Button type="submit">Submit</Button>
       </form>
     </Form>
-  )
+  );
 }
 
 const users = [
@@ -246,7 +259,7 @@ const users = [
     teamName: 'DevOps Team',
     tasksCount: 7,
   },
-]
+];
 
 const boards = [
   {
@@ -285,4 +298,4 @@ const boards = [
     description: 'Миграция инфраструктуры',
     taskCount: 7,
   },
-]
+];

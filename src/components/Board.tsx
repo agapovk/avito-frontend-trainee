@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Board, Task } from '../types';
 
@@ -19,7 +19,7 @@ export default function BoardPage() {
   const [board, setBoard] = useState<Board | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  const fetchBoardTasks = async () => {
+  const fetchBoardTasks = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:8080/api/v1/boards/${id}`);
       const { data } = await response.json();
@@ -27,9 +27,9 @@ export default function BoardPage() {
     } catch (error) {
       console.error('Error fetching board tasks:', error);
     }
-  };
+  }, [id]);
 
-  const fetchBoard = async () => {
+  const fetchBoard = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:8080/api/v1/boards`);
       const { data } = await response.json();
@@ -38,12 +38,12 @@ export default function BoardPage() {
     } catch (error) {
       console.error('Error fetching board:', error);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchBoard();
     fetchBoardTasks();
-  }, [id]);
+  }, [id, fetchBoard, fetchBoardTasks]);
 
   // Group the tasks by their status
   const groupedTasks = tasks.reduce((acc, task) => {

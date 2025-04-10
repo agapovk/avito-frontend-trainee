@@ -1,6 +1,6 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Button } from './ui/button'
-import { cn } from '@/lib/utils'
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from './ui/button';
+import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
@@ -11,9 +11,9 @@ const menuItems = [
     title: 'Проекты',
     href: '/boards',
   },
-]
+];
 export default function Header() {
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
 
   return (
     <header className="flex justify-between items-center p-4 border-b">
@@ -30,5 +30,5 @@ export default function Header() {
       </nav>
       <Button>Создать задачу</Button>
     </header>
-  )
+  );
 }

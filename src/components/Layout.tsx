@@ -1,5 +1,5 @@
-import App from '../App'
-import Header from './Header'
+import App from '../App';
+import Header from './Header';
 
 export default function Root() {
   return (
@@ -9,5 +9,5 @@ export default function Root() {
         <App />
       </main>
     </>
-  )
+  );
 }

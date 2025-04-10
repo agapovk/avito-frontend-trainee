@@ -1,22 +1,22 @@
-import { useEffect, useState } from 'react'
-import { Board } from '../types'
-import BoardCard from './BoardCard'
+import { useEffect, useState } from 'react';
+import { Board } from '../types';
+import BoardCard from './BoardCard';
 
 export default function Boards() {
-  const [boards, setBoards] = useState<Board[]>([])
+  const [boards, setBoards] = useState<Board[]>([]);
 
   useEffect(() => {
     const fetchBoards = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/boards')
-        const { data } = await response.json()
-        setBoards(data)
+        const response = await fetch('http://localhost:8080/api/v1/boards');
+        const { data } = await response.json();
+        setBoards(data);
       } catch (error) {
-        console.error('Error fetching boards:', error)
+        console.error('Error fetching boards:', error);
       }
-    }
-    fetchBoards()
-  }, [])
+    };
+    fetchBoards();
+  }, []);
 
   return (
     <>
@@ -34,5 +34,5 @@ export default function Boards() {
         </ul>
       </section>
     </>
-  )
+  );
 }

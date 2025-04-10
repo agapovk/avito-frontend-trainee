@@ -1,12 +1,12 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import Layout from './components/Layout.tsx'
-import NotFound from './components/NotFound.tsx'
-import Boards from './components/Boards.tsx'
-import Board from './components/Board.tsx'
-import Issues from './components/Issues.tsx'
-import './index.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import Layout from './components/Layout.tsx';
+import NotFound from './components/NotFound.tsx';
+import Boards from './components/Boards.tsx';
+import Board from './components/Board.tsx';
+import Issues from './components/Issues.tsx';
+import './index.css';
 
 const router = createBrowserRouter([
   {
@@ -32,10 +32,10 @@ const router = createBrowserRouter([
       },
     ],
   },
-])
+]);
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>
-)
+  </StrictMode>,
+);

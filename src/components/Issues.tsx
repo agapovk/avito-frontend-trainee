@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react'
-import { Issue } from '../types'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import IssueCard from './IssueCard'
+import { useEffect, useState } from 'react';
+import { Issue } from '../types';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import IssueCard from './IssueCard';
 
 export default function Issues() {
-  const [issues, setIssues] = useState<Issue[]>([])
+  const [issues, setIssues] = useState<Issue[]>([]);
 
   useEffect(() => {
     const fetchIssues = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/v1/tasks')
-        const { data } = await response.json()
-        setIssues(data)
+        const response = await fetch('http://localhost:8080/api/v1/tasks');
+        const { data } = await response.json();
+        setIssues(data);
       } catch (error) {
-        console.error('Error fetching issues:', error)
+        console.error('Error fetching issues:', error);
       }
-    }
-    fetchIssues()
-  }, [])
+    };
+    fetchIssues();
+  }, []);
 
   return (
     <>
@@ -43,5 +43,5 @@ export default function Issues() {
         </div>
       </section>
     </>
-  )
+  );
 }

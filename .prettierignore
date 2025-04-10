@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Build output
+dist
+build
+coverage
+
+# Environment files
+.env
+.env.local
+
+# System files
+.DS_Store
+.thumbsdb
+
+# Version control
+.git
+.gitignore
+.editorconfig
+
+# Logs and debug
+npm-debug.log*
+debug.log
+*.log
+
+# IDE specific
+.idea
+.vscode
+
+# Cache directories
+.cache
+.parcel-cache
+
+# Minified assets
+public/build
+
+# TypeScript build
+tsconfig.tsbuildinfo
+
+# Server files
+server
