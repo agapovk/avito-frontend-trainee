@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Issue } from '../types'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import IssueCard from './IssueCard'
 
 export default function Issues() {
   const [issues, setIssues] = useState<Issue[]>([])
@@ -18,22 +21,27 @@ export default function Issues() {
   }, [])
 
   return (
-    <main>
-      <section>
-        <h2>Issues</h2>
+    <>
+      <section className="space-y-2">
+        <h2 className="font-semibold text-xl">Issues</h2>
+        <p className="text-muted-foreground">The list of all tasks</p>
       </section>
-      <section>
-        <div>
-          <input type="text" placeholder="search" />
-          <button>Фильтр</button>
+      <section className="space-y-4">
+        <div className="flex justify-between items-center">
+          <Input type="text" placeholder="search" className="w-2xs" />
+          <Button variant="outline">Фильтр</Button>
         </div>
-        <ul>
+        <ul className="space-y-4">
           {issues.map((issue) => (
-            <li key={issue.id}>{issue.title}</li>
+            <li key={issue.id}>
+              <IssueCard {...issue} />
+            </li>
           ))}
         </ul>
-        <button>Создать задачу</button>
+        <div className="flex justify-end">
+          <Button className="">Создать задачу</Button>
+        </div>
       </section>
-    </main>
+    </>
   )
 }

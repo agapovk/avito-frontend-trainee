@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { Board } from '../types'
+import BoardCard from './BoardCard'
 
 export default function Boards() {
   const [boards, setBoards] = useState<Board[]>([])
@@ -19,15 +19,20 @@ export default function Boards() {
   }, [])
 
   return (
-    <div>
-      <h2>Boards</h2>
-      <ul>
-        {boards.map((board) => (
-          <li key={board.id}>
-            <Link to={`/board/${board.id}`}>{board.name}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <section className="space-y-2">
+        <h2 className="font-semibold text-xl">Boards</h2>
+        <p className="text-muted-foreground">The list of all boards</p>
+      </section>
+      <section className="space-y-4">
+        <ul className="space-y-4">
+          {boards.map((board) => (
+            <li key={board.id}>
+              <BoardCard {...board} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   )
 }

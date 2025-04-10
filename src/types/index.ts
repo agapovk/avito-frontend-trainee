@@ -8,10 +8,10 @@ export type Assignee = {
 export type Issue = {
   id: number
   title: string
-  boardName: string
   description: string
   priority: string
   status: string
+  boardName: string
   boardId: number
   assignee: Assignee
   assigneeId: number

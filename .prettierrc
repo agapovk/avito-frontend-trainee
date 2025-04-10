@@ -1,0 +1,23 @@
+{
+  "semi": true,
+  "tabWidth": 2,
+  "printWidth": 100,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "arrowParens": "always",
+  "endOfLine": "auto",
+  "quoteProps": "consistent",
+  "jsxSingleQuote": false,
+  "proseWrap": "always",
+  "overrides": [
+    {
+      "files": "*.{json,md,yml,yaml}",
+      "options": {
+        "singleQuote": false,
+        "tabWidth": 2
+      }
+    }
+  ]
+}
