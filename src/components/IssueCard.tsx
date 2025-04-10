@@ -2,8 +2,9 @@ import { Issue } from '@/types';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { statusMap } from '@/lib/utils';
 
-export default function IssueCard(issue: Issue) {
+export default function IssueCard({ issue }: { issue: Issue }) {
   const getInitials = (fullName: string): string => {
     const names = fullName.split(' ');
     const initials = names.map((name) => name.charAt(0).toUpperCase());
@@ -13,9 +14,9 @@ export default function IssueCard(issue: Issue) {
   return (
     <Card className="p-0">
       <CardContent className="py-4">
-        <h3 className="font-semibold">{issue.title}</h3>
-        <p className="text-muted-foreground text-sm">{issue.boardName}</p>
-        <div className="flex justify-between items-end mt-4">
+        <p className="font-semibold px-0 text-md truncate">{issue.title}</p>
+        <p className="text-muted-foreground text-sm truncate">{issue.boardName}</p>
+        <div className="flex flex-col sm:flex-row justify-between sm:items-end mt-4 gap-2">
           <div className="flex items-center space-x-4">
             <Avatar>
               <AvatarImage src={issue.assignee.avatarUrl} alt={issue.assignee.fullName} />
@@ -27,8 +28,13 @@ export default function IssueCard(issue: Issue) {
             </div>
           </div>
           <div className="space-x-2">
-            <Badge>{issue.priority}</Badge>
-            <Badge>{issue.status}</Badge>
+            <Badge variant="outline">{issue.priority}</Badge>
+            <Badge
+              variant="outline"
+              className={statusMap[issue.status as keyof typeof statusMap].color}
+            >
+              {statusMap[issue.status as keyof typeof statusMap].title}
+            </Badge>
           </div>
         </div>
       </CardContent>

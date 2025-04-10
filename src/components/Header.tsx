@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import BoardDialog from './BoardDialog';
 
 const menuItems = [
   {
@@ -16,8 +17,8 @@ export default function Header() {
   const { pathname } = useLocation();
 
   return (
-    <header className="flex justify-between items-center p-4 border-b">
-      <nav>
+    <header className="border-b">
+      <nav className="flex justify-between items-center p-4 mx-auto md:max-w-5xl">
         <ul className="flex items-center gap-4">
           {menuItems.map((item, index) => (
             <li key={index}>
@@ -27,8 +28,8 @@ export default function Header() {
             </li>
           ))}
         </ul>
+        <BoardDialog task={null} board={null} />
       </nav>
-      <Button>Создать задачу</Button>
     </header>
   );
 }

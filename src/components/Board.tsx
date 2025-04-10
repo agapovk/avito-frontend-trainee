@@ -1,28 +1,19 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Board, Task } from '../types';
-
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { cn, statusMap } from '@/lib/utils';
-import TaskForm from './TaskForm';
+import { statusMap } from '@/lib/utils';
+import BoardDialog from './BoardDialog';
+import { dbClient } from '@/services/dbclient';
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
-  const [board, setBoard] = useState<Board | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [board, setBoard] = useState<Board | null>(null);
 
   const fetchBoardTasks = useCallback(async () => {
+    if (!id) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/boards/${id}`);
-      const { data } = await response.json();
+      const data = await dbClient.getBoardTasks(id);
       setTasks(data);
     } catch (error) {
       console.error('Error fetching board tasks:', error);
@@ -30,11 +21,10 @@ export default function BoardPage() {
   }, [id]);
 
   const fetchBoard = useCallback(async () => {
+    if (!id) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/boards`);
-      const { data } = await response.json();
-      const boardById = id ? data.find((board: Board) => board.id === parseInt(id)) : null;
-      setBoard(boardById);
+      const data = await dbClient.getBoard(id);
+      setBoard(data);
     } catch (error) {
       console.error('Error fetching board:', error);
     }
@@ -80,27 +70,7 @@ export default function BoardPage() {
                 <ul className="space-y-4">
                   {tasks.map((task) => (
                     <li key={task.id}>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className={cn(
-                              'w-full text-left px-3 block truncate border-l-8',
-                              statusMap[task.status as keyof typeof statusMap].border,
-                            )}
-                          >
-                            {task.title}
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl">
-                          <DialogHeader>
-                            <DialogTitle>Редактирование задачи</DialogTitle>
-                            <DialogDescription>{task.title}</DialogDescription>
-                          </DialogHeader>
-                          <TaskForm {...task} />
-                        </DialogContent>
-                      </Dialog>
+                      <BoardDialog task={task} board={board} />
                     </li>
                   ))}
                 </ul>
