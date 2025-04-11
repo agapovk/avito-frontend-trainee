@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import Layout from './components/Layout.tsx';
 import NotFound from './components/NotFound.tsx';
 import Boards from './components/Boards.tsx';
-import Board from './components/Board.tsx';
+import Board from './components/BoardPage.tsx';
 import Issues from './components/Issues.tsx';
 import './index.css';
 

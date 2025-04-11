@@ -1,4 +1,4 @@
-import { Board, Issue, Task } from '@/types';
+import { Board, Issue, NewTask, Task, User } from '@/types';
 
 export const dbClient = {
   async getTasks(): Promise<Issue[]> {
@@ -17,18 +17,33 @@ export const dbClient = {
     const { data } = await response.json();
     return data;
   },
-  async getBoard(boardId: string): Promise<Board> {
-    const response = await fetch(`http://localhost:8080/api/v1/boards/${boardId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch board');
-    }
-    const { data } = await response.json();
-    return data;
-  },
   async getBoardTasks(boardId: string): Promise<Task[]> {
     const response = await fetch(`http://localhost:8080/api/v1/boards/${boardId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch board tasks');
+    }
+    const { data } = await response.json();
+    return data;
+  },
+  async getUsers(): Promise<User[]> {
+    const response = await await fetch(`http://localhost:8080/api/v1/users`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    const { data } = await response.json();
+    return data;
+  },
+  // Create task async function
+  async createTask(task: NewTask): Promise<NewTask> {
+    const response = await fetch('http://localhost:8080/api/v1/tasks/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(task),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create task');
     }
     const { data } = await response.json();
     return data;

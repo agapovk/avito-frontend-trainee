@@ -32,3 +32,22 @@ export type Task = {
   priority: string;
   assignee: Assignee;
 };
+
+export type NewTask = {
+  assigneeId: number;
+  boardId: number;
+  description: string;
+  priority: string;
+  title: string;
+};
+
+export type User = {
+  id: number;
+  email: string;
+  fullName: string;
+  description: string;
+  avatarUrl: string;
+  teamName: string;
+  teamId: number;
+  tasksCount: number;
+};

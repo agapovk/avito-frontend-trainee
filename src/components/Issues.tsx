@@ -3,7 +3,7 @@ import { Board, Issue } from '../types';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import IssueCard from './IssueCard';
-import { dbClient } from '@/services/dbclient';
+import { dbClient } from '@/services/dbClient';
 import StatusFilter from './StatusFilter';
 import BoardFilter from './BoardFilter';
 import {
@@ -14,7 +14,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import TaskForm from './TaskForm';
+import EditForm from './EditForm';
+import NewForm from './NewForm';
+import { X } from 'lucide-react';
 
 export default function Issues() {
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -23,6 +25,30 @@ export default function Issues() {
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedBoards, setSelectedBoards] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const fetchIssues = useCallback(async () => {
+    try {
+      const data = await dbClient.getTasks();
+      setIssues(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const fetchBoards = useCallback(async () => {
+    try {
+      const data = await dbClient.getBoards();
+      setBoards(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBoards();
+    fetchIssues();
+  }, [fetchBoards, fetchIssues]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,42 +69,29 @@ export default function Issues() {
     return matchesSearch && matchesStatus && matchesBoard;
   });
 
-  const fetchIssues = useCallback(async () => {
-    try {
-      const data = await dbClient.getTasks();
-      setIssues(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
-  const fetchBoards = useCallback(async () => {
-    try {
-      const data = await dbClient.getBoards();
-      setBoards(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
-  useEffect(() => {}, []);
-
-  useEffect(() => {
-    fetchBoards();
-    fetchIssues();
-  }, []);
-
   return (
     <>
       <section className="space-y-4">
         <div className="flex justify-between items-center">
-          <Input
-            type="text"
-            placeholder="Поиск"
-            className="w-2xs"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Поиск"
+              className="w-2xs"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSearchQuery('')}
+                className="absolute h-6 w-6 top-1/2 -translate-y-1/2 right-2 z-50 rounded-full bg-white"
+              >
+                <X />
+              </Button>
+            )}
+          </div>
           <div className="flex gap-4 items center">
             <StatusFilter
               selectedStatuses={selectedStatuses}
@@ -102,15 +115,15 @@ export default function Issues() {
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl">
                   <DialogHeader>
-                    <DialogTitle>{task ? 'Редактирование задачи' : 'Создание задачи'}</DialogTitle>
+                    <DialogTitle>Редактирование задачи</DialogTitle>
                     <DialogDescription>Заполните форму</DialogDescription>
                   </DialogHeader>
-                  <TaskForm
+                  <EditForm
                     task={task}
-                    showBoardButton={true}
                     board={boards.find(
                       (b) => b.name.toLowerCase() === task.boardName.toLowerCase(),
                     )}
+                    showBoardButton={true}
                   />
                 </DialogContent>
               </Dialog>
@@ -118,7 +131,18 @@ export default function Issues() {
           ))}
         </ul>
         <div className="flex justify-end">
-          <Button className="">Создать задачу</Button>
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button>Создать задачу</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>{'Создание задачи'}</DialogTitle>
+                <DialogDescription>Заполните форму</DialogDescription>
+              </DialogHeader>
+              <NewForm setIsModalOpen={setIsModalOpen} fetchIssues={fetchIssues} />
+            </DialogContent>
+          </Dialog>
         </div>
       </section>
     </>

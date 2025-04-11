@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Board } from '../types';
 import BoardCard from './BoardCard';
-import { dbClient } from '@/services/dbclient';
+import { dbClient } from '@/services/dbClient';
 
 export default function Boards() {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -17,7 +17,7 @@ export default function Boards() {
 
   useEffect(() => {
     fetchBoards();
-  }, []);
+  }, [fetchBoards]);
 
   return (
     <>

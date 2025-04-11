@@ -1,7 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import BoardDialog from './BoardDialog';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import NewForm from './NewForm';
+import { useState } from 'react';
 
 const menuItems = [
   {
@@ -15,6 +24,7 @@ const menuItems = [
 ];
 export default function Header() {
   const { pathname } = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <header className="border-b">
@@ -28,7 +38,18 @@ export default function Header() {
             </li>
           ))}
         </ul>
-        <BoardDialog task={null} board={null} />
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogTrigger asChild>
+            <Button>Создать задачу</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>{'Создание задачи'}</DialogTitle>
+              <DialogDescription>Заполните форму</DialogDescription>
+            </DialogHeader>
+            <NewForm setIsModalOpen={setIsModalOpen} />
+          </DialogContent>
+        </Dialog>
       </nav>
     </header>
   );
