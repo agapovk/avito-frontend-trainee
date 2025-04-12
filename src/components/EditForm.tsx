@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Board, Task, User } from '@/types';
+import { Board, Task } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -24,8 +24,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from './ui/textarea';
 import { cn, statusMap } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useUnit } from 'effector-react';
+import { $boards, $users, fetchBoardsFx, fetchUsersFx } from '@/store/store';
 import { dbClient } from '@/services/dbClient';
+import { toast } from 'sonner';
 
 const statuses = ['Backlog', 'InProgress', 'Done'];
 const priorities = ['Low', 'Medium', 'High'];
@@ -36,7 +39,7 @@ const formSchema = z.object({
   status: z.enum(['Backlog', 'InProgress', 'Done']),
   priority: z.enum(['Low', 'Medium', 'High']),
   boardId: z.coerce.number(),
-  assigneeId: z.number(),
+  assigneeId: z.coerce.number(),
 });
 
 export default function EditForm({
@@ -44,37 +47,25 @@ export default function EditForm({
   board,
   showBoardButton = false,
   disableBoardField = false,
+  setIsEditModalOpen,
+  fetchAction,
+  fetchBoardTasks,
 }: {
   task: Task;
   board: Board | undefined;
   showBoardButton?: boolean;
   disableBoardField?: boolean;
+  setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchAction?: () => void;
+  fetchBoardTasks?: (boardId: string) => Promise<void>;
 }) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [boards, setBoards] = useState<Board[]>([]);
-
-  const fetchUsers = useCallback(async () => {
-    try {
-      const data = await dbClient.getUsers();
-      setUsers(data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
-  const fetchBoards = useCallback(async () => {
-    try {
-      const data = await dbClient.getBoards();
-      setBoards(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+  const users = useUnit($users);
+  const boards = useUnit($boards);
 
   useEffect(() => {
-    fetchUsers();
-    fetchBoards();
-  }, [fetchBoards, fetchUsers]);
+    fetchUsersFx();
+    fetchBoardsFx();
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -90,8 +81,21 @@ export default function EditForm({
 
   const { isDirty } = form.formState;
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await dbClient.updateTask(task.id, values);
+      form.reset();
+      setIsEditModalOpen(false);
+      if (fetchBoardTasks && board?.id) {
+        fetchBoardTasks(board.id.toString());
+      }
+      if (fetchAction) {
+        fetchAction();
+      }
+      toast.success('Задача обновлена');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (

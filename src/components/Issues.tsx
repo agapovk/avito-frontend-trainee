@@ -1,9 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Board, Issue } from '../types';
+import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import IssueCard from './IssueCard';
-import { dbClient } from '@/services/dbClient';
 import StatusFilter from './StatusFilter';
 import BoardFilter from './BoardFilter';
 import {
@@ -14,41 +11,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './ui/dialog';
-import EditForm from './EditForm';
 import NewForm from './NewForm';
 import { X } from 'lucide-react';
+import { useUnit } from 'effector-react';
+import { $issues, $boards, fetchIssuesFx, fetchBoardsFx } from '@/store/store';
+import EditDialog from './IssuesDialog';
 
 export default function Issues() {
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [boards, setBoards] = useState<Board[]>([]);
+  const issues = useUnit($issues);
+  const boards = useUnit($boards);
+
+  useEffect(() => {
+    fetchBoardsFx();
+    fetchIssuesFx();
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedBoards, setSelectedBoards] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchIssues = useCallback(async () => {
-    try {
-      const data = await dbClient.getTasks();
-      setIssues(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
-  const fetchBoards = useCallback(async () => {
-    try {
-      const data = await dbClient.getBoards();
-      setBoards(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
-
   useEffect(() => {
-    fetchBoards();
-    fetchIssues();
-  }, [fetchBoards, fetchIssues]);
+    fetchBoardsFx();
+    fetchIssuesFx();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -107,26 +94,7 @@ export default function Issues() {
         <ul className="space-y-4">
           {filteredIssues.map((task) => (
             <li key={task.id}>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <div className="cursor-pointer">
-                    <IssueCard issue={task} />
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl">
-                  <DialogHeader>
-                    <DialogTitle>Редактирование задачи</DialogTitle>
-                    <DialogDescription>Заполните форму</DialogDescription>
-                  </DialogHeader>
-                  <EditForm
-                    task={task}
-                    board={boards.find(
-                      (b) => b.name.toLowerCase() === task.boardName.toLowerCase(),
-                    )}
-                    showBoardButton={true}
-                  />
-                </DialogContent>
-              </Dialog>
+              <EditDialog task={task} />
             </li>
           ))}
         </ul>
@@ -140,7 +108,7 @@ export default function Issues() {
                 <DialogTitle>{'Создание задачи'}</DialogTitle>
                 <DialogDescription>Заполните форму</DialogDescription>
               </DialogHeader>
-              <NewForm setIsModalOpen={setIsModalOpen} fetchIssues={fetchIssues} />
+              <NewForm setIsModalOpen={setIsModalOpen} />
             </DialogContent>
           </Dialog>
         </div>

@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Board, User } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -22,9 +21,11 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from './ui/textarea';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { dbClient } from '@/services/dbClient';
 import { toast } from 'sonner';
+import { $boards, $users, fetchBoardsFx, fetchIssuesFx, fetchUsersFx } from '@/store/store';
+import { useUnit } from 'effector-react';
 
 const priorities = ['Low', 'Medium', 'High'];
 
@@ -38,35 +39,15 @@ const formSchema = z.object({
 
 export default function NewForm({
   setIsModalOpen,
-  fetchIssues,
 }: {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  fetchIssues: () => Promise<void>;
 }) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [boards, setBoards] = useState<Board[]>([]);
-
-  const fetchUsers = useCallback(async () => {
-    try {
-      const data = await dbClient.getUsers();
-      setUsers(data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
-  const fetchBoards = useCallback(async () => {
-    try {
-      const data = await dbClient.getBoards();
-      setBoards(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+  const users = useUnit($users);
+  const boards = useUnit($boards);
 
   useEffect(() => {
-    fetchUsers();
-    fetchBoards();
+    fetchUsersFx();
+    fetchBoardsFx();
   }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -85,7 +66,7 @@ export default function NewForm({
       await dbClient.createTask(values);
       form.reset();
       setIsModalOpen(false);
-      fetchIssues();
+      fetchIssuesFx();
       toast.success('Задача создана');
     } catch (error) {
       console.log(error);

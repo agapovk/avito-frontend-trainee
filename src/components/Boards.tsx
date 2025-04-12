@@ -1,23 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Board } from '../types';
+import { useEffect } from 'react';
 import BoardCard from './BoardCard';
-import { dbClient } from '@/services/dbClient';
+import { $boards, fetchBoardsFx } from '@/store/store';
+import { useUnit } from 'effector-react';
 
 export default function Boards() {
-  const [boards, setBoards] = useState<Board[]>([]);
-
-  const fetchBoards = useCallback(async () => {
-    try {
-      const data = await dbClient.getBoards();
-      setBoards(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
+  const boards = useUnit($boards);
 
   useEffect(() => {
-    fetchBoards();
-  }, [fetchBoards]);
+    fetchBoardsFx();
+  }, []);
 
   return (
     <>

@@ -1,48 +1,30 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Board, Task } from '../types';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { cn, statusMap } from '@/lib/utils';
+import { Task } from '../types';
+import { statusMap } from '@/lib/utils';
+import { $boards, fetchBoardsFx } from '@/store/store';
+import { useUnit } from 'effector-react';
 import { dbClient } from '@/services/dbClient';
-import EditForm from './EditForm';
+import BoardPageDialog from './BoardPageDialog';
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [boards, setBoards] = useState<Board[]>([]);
+  const boards = useUnit($boards);
 
-  const fetchBoardTasks = useCallback(async () => {
-    if (!id) return;
+  const fetchBoardTasks = useCallback(async (boardId: string) => {
     try {
-      const data = await dbClient.getBoardTasks(id);
+      const data = await dbClient.getBoardTasks(boardId);
       setTasks(data);
     } catch (error) {
-      console.error('Error fetching board tasks:', error);
+      console.log(error);
     }
-  }, [id]);
-
-  const fetchBoards = useCallback(async () => {
-    if (!id) return;
-    try {
-      const data = await dbClient.getBoards();
-      setBoards(data);
-    } catch (error) {
-      console.error('Error fetching board:', error);
-    }
-  }, [id]);
+  }, []);
 
   useEffect(() => {
-    fetchBoards();
-    fetchBoardTasks();
-  }, [id, fetchBoards, fetchBoardTasks]);
+    fetchBoardsFx();
+    if (id) fetchBoardTasks(id);
+  }, []);
 
   // Group the tasks by their status
   const groupedTasks = tasks.reduce((acc, task) => {
@@ -81,33 +63,11 @@ export default function BoardPage() {
                 <ul className="space-y-4">
                   {tasks.map((task) => (
                     <li key={task.id}>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className={cn(
-                              'w-full h-auto text-left px-3 block truncate border-l-8',
-                              statusMap[task.status as keyof typeof statusMap].border,
-                            )}
-                          >
-                            <div className="flex flex-col py-2 gap-2">
-                              <p className="truncate">{task.title}</p>
-                              <div className="text-muted-foreground text-xs flex justify-between items-center">
-                                <span>{task.assignee.fullName}</span>
-                                <span>{task.priority}</span>
-                              </div>
-                            </div>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl">
-                          <DialogHeader>
-                            <DialogTitle>Редактирование задачи</DialogTitle>
-                            <DialogDescription>Заполните форму</DialogDescription>
-                          </DialogHeader>
-                          <EditForm task={task} board={board} disableBoardField={true} />
-                        </DialogContent>
-                      </Dialog>
+                      <BoardPageDialog
+                        task={task}
+                        board={board}
+                        fetchBoardTasks={fetchBoardTasks}
+                      />
                     </li>
                   ))}
                 </ul>
