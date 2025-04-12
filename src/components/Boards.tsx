@@ -1,33 +1,26 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Board } from '../types'
+import { useEffect } from 'react';
+import BoardCard from './BoardCard';
+import { $boards, fetchBoardsFx } from '@/store/store';
+import { useUnit } from 'effector-react';
 
 export default function Boards() {
-  const [boards, setBoards] = useState<Board[]>([])
+  const boards = useUnit($boards);
 
   useEffect(() => {
-    const fetchBoards = async () => {
-      try {
-        const response = await fetch('http://localhost:8080/api/v1/boards')
-        const { data } = await response.json()
-        setBoards(data)
-      } catch (error) {
-        console.error('Error fetching boards:', error)
-      }
-    }
-    fetchBoards()
-  }, [])
+    fetchBoardsFx();
+  }, []);
 
   return (
-    <div>
-      <h2>Boards</h2>
-      <ul>
-        {boards.map((board) => (
-          <li key={board.id}>
-            <Link to={`/board/${board.id}`}>{board.name}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
+    <>
+      <section className="space-y-4">
+        <ul className="space-y-4 mx-auto max-w-2xl">
+          {boards.map((board) => (
+            <li key={board.id}>
+              <BoardCard board={board} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
+  );
 }
