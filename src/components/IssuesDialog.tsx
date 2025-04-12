@@ -10,7 +10,7 @@ import {
 } from './ui/dialog';
 import EditForm from './EditForm';
 import { useUnit } from 'effector-react';
-import { $boards, fetchIssuesFx } from '@/store/store';
+import { $boards } from '@/store/store';
 import { Issue } from '@/types';
 
 export default function EditDialog({ task }: { task: Issue }) {
@@ -33,7 +33,6 @@ export default function EditDialog({ task }: { task: Issue }) {
           board={boards.find((b) => b.name.toLowerCase() === task.boardName.toLowerCase())}
           showBoardButton={true}
           setIsEditModalOpen={setIsModalOpen}
-          fetchAction={fetchIssuesFx}
         />
       </DialogContent>
     </Dialog>

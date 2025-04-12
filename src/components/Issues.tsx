@@ -16,6 +16,7 @@ import { X } from 'lucide-react';
 import { useUnit } from 'effector-react';
 import { $issues, $boards, fetchIssuesFx, fetchBoardsFx } from '@/store/store';
 import EditDialog from './IssuesDialog';
+import { ArrowUp } from 'lucide-react'; // Add this import
 
 export default function Issues() {
   const issues = useUnit($issues);
@@ -31,6 +32,25 @@ export default function Issues() {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedBoards, setSelectedBoards] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Add scroll handler
+  useEffect(() => {
+    const toggleVisibility = () => {
+      setIsVisible(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+
+  // Add scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
 
   useEffect(() => {
     fetchBoardsFx();
@@ -58,7 +78,7 @@ export default function Issues() {
 
   return (
     <>
-      <section className="space-y-4">
+      <section className="space-y-4 mx-auto max-w-2xl">
         <div className="flex justify-between items-center">
           <div className="relative">
             <Input
@@ -113,6 +133,17 @@ export default function Issues() {
           </Dialog>
         </div>
       </section>
+
+      {/* Add floating button */}
+      {isVisible && (
+        <Button
+          onClick={scrollToTop}
+          size="icon"
+          className="fixed bottom-4 right-4 rounded-full shadow-lg transition-opacity opacity-90 hover:opacity-100"
+        >
+          <ArrowUp className="h-4 w-4" />
+        </Button>
+      )}
     </>
   );
 }

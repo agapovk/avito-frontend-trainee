@@ -26,6 +26,7 @@ import { dbClient } from '@/services/dbClient';
 import { toast } from 'sonner';
 import { $boards, $users, fetchBoardsFx, fetchIssuesFx, fetchUsersFx } from '@/store/store';
 import { useUnit } from 'effector-react';
+import { useLocation } from 'react-router-dom';
 
 const priorities = ['Low', 'Medium', 'High'];
 
@@ -42,6 +43,7 @@ export default function NewForm({
 }: {
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  const { pathname } = useLocation();
   const users = useUnit($users);
   const boards = useUnit($boards);
 
@@ -66,7 +68,12 @@ export default function NewForm({
       await dbClient.createTask(values);
       form.reset();
       setIsModalOpen(false);
-      fetchIssuesFx();
+      if (pathname.includes('/board')) {
+        // how to update board tasks when we on /board/:{id} page?
+      }
+      if (pathname.includes('/issues')) {
+        fetchIssuesFx();
+      }
       toast.success('Задача создана');
     } catch (error) {
       console.log(error);

@@ -12,15 +12,7 @@ import { Board, Task } from '@/types';
 import { Button } from './ui/button';
 import { cn, statusMap } from '@/lib/utils';
 
-export default function BoardPageDialog({
-  task,
-  board,
-  fetchBoardTasks,
-}: {
-  task: Task;
-  board: Board;
-  fetchBoardTasks: (id: string) => Promise<void>;
-}) {
+export default function BoardPageDialog({ task, board }: { task: Task; board: Board }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -53,7 +45,6 @@ export default function BoardPageDialog({
           board={board}
           disableBoardField={true}
           setIsEditModalOpen={setIsModalOpen}
-          fetchBoardTasks={fetchBoardTasks}
         />
       </DialogContent>
     </Dialog>

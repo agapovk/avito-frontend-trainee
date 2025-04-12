@@ -1,30 +1,25 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { Task } from '../types';
 import { statusMap } from '@/lib/utils';
 import { $boards, fetchBoardsFx } from '@/store/store';
 import { useUnit } from 'effector-react';
-import { dbClient } from '@/services/dbClient';
+import { $boardTasks, fetchBoardTasksFx } from '@/store/store';
 import BoardPageDialog from './BoardPageDialog';
+import { Button } from './ui/button';
 
 export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
-  const [tasks, setTasks] = useState<Task[]>([]);
   const boards = useUnit($boards);
-
-  const fetchBoardTasks = useCallback(async (boardId: string) => {
-    try {
-      const data = await dbClient.getBoardTasks(boardId);
-      setTasks(data);
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+  const boardTasks = useUnit($boardTasks);
+  const tasks = id ? boardTasks[id] || [] : [];
 
   useEffect(() => {
     fetchBoardsFx();
-    if (id) fetchBoardTasks(id);
-  }, []);
+    if (id) {
+      fetchBoardTasksFx(id);
+    }
+  }, [id]);
 
   // Group the tasks by their status
   const groupedTasks = tasks.reduce((acc, task) => {
@@ -36,8 +31,17 @@ export default function BoardPage() {
   const board = boards.find((board) => board.id === Number(id));
 
   if (!board) {
-    return <p>No Board found</p>;
+    return (
+      <div className="flex flex-col w-full items-center gap-4 mt-8">
+        <Link to="/">
+          <Button variant="outline">К списку проектов</Button>
+        </Link>
+        <p>Проект не найден</p>
+      </div>
+    );
   }
+
+  const priorityOrder = { High: 0, Medium: 1, Low: 2 };
 
   return (
     <>
@@ -48,7 +52,7 @@ export default function BoardPage() {
       <section className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {Object.entries(groupedTasks)
-            // Sort the statuses by their order
+            // Sort the statuses: todo -> in progress -> done
             .sort(
               (a, b) =>
                 statusMap[a[0] as keyof typeof statusMap].order -
@@ -61,15 +65,19 @@ export default function BoardPage() {
                   {statusMap[status as keyof typeof statusMap].title}
                 </h3>
                 <ul className="space-y-4">
-                  {tasks.map((task) => (
-                    <li key={task.id}>
-                      <BoardPageDialog
-                        task={task}
-                        board={board}
-                        fetchBoardTasks={fetchBoardTasks}
-                      />
-                    </li>
-                  ))}
+                  {tasks
+                    // Sort the tasks by their priority: high at the top, low at the bottom
+                    .sort((a, b) => {
+                      return (
+                        priorityOrder[a.priority as keyof typeof priorityOrder] -
+                        priorityOrder[b.priority as keyof typeof priorityOrder]
+                      );
+                    })
+                    .map((task) => (
+                      <li key={task.id}>
+                        <BoardPageDialog task={task} board={board} />
+                      </li>
+                    ))}
                 </ul>
               </div>
             ))}

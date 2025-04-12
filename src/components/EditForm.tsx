@@ -23,10 +23,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from './ui/textarea';
 import { cn, statusMap } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useUnit } from 'effector-react';
-import { $boards, $users, fetchBoardsFx, fetchUsersFx } from '@/store/store';
+import {
+  $boards,
+  $users,
+  fetchBoardsFx,
+  fetchBoardTasksFx,
+  fetchIssuesFx,
+  fetchUsersFx,
+} from '@/store/store';
 import { dbClient } from '@/services/dbClient';
 import { toast } from 'sonner';
 
@@ -48,17 +55,15 @@ export default function EditForm({
   showBoardButton = false,
   disableBoardField = false,
   setIsEditModalOpen,
-  fetchAction,
-  fetchBoardTasks,
 }: {
   task: Task;
   board: Board | undefined;
   showBoardButton?: boolean;
   disableBoardField?: boolean;
   setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  fetchAction?: () => void;
-  fetchBoardTasks?: (boardId: string) => Promise<void>;
 }) {
+  const { pathname } = useLocation();
+
   const users = useUnit($users);
   const boards = useUnit($boards);
 
@@ -86,11 +91,11 @@ export default function EditForm({
       await dbClient.updateTask(task.id, values);
       form.reset();
       setIsEditModalOpen(false);
-      if (fetchBoardTasks && board?.id) {
-        fetchBoardTasks(board.id.toString());
+      if (board && pathname.includes('/board/')) {
+        fetchBoardTasksFx(board.id.toString());
       }
-      if (fetchAction) {
-        fetchAction();
+      if (pathname.includes('/issues')) {
+        fetchIssuesFx();
       }
       toast.success('Задача обновлена');
     } catch (error) {
