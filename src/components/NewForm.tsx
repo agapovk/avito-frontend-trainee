@@ -24,7 +24,14 @@ import { Textarea } from './ui/textarea';
 import { useEffect } from 'react';
 import { dbClient } from '@/services/dbClient';
 import { toast } from 'sonner';
-import { $boards, $users, fetchBoardsFx, fetchIssuesFx, fetchUsersFx } from '@/store/store';
+import {
+  $boards,
+  $users,
+  fetchBoardsFx,
+  fetchBoardTasksFx,
+  fetchIssuesFx,
+  fetchUsersFx,
+} from '@/store/store';
 import { useUnit } from 'effector-react';
 import { useLocation } from 'react-router-dom';
 
@@ -69,7 +76,8 @@ export default function NewForm({
       form.reset();
       setIsModalOpen(false);
       if (pathname.includes('/board')) {
-        // how to update board tasks when we on /board/:{id} page?
+        const boardId = pathname.split('/')[2];
+        fetchBoardTasksFx(boardId);
       }
       if (pathname.includes('/issues')) {
         fetchIssuesFx();
