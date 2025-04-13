@@ -9,9 +9,8 @@
     "lint": "eslint .",
     "format": "npx prettier --write .",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage",
     "prepare": "husky"
   },
   "dependencies": {
