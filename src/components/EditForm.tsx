@@ -1,5 +1,4 @@
-'use client';
-
+import React, { useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -24,7 +23,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from './ui/textarea';
 import { cn, statusMap } from '@/lib/utils';
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
 import { useUnit } from 'effector-react';
 import {
   $boards,
@@ -63,7 +61,6 @@ export default function EditForm({
   setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { pathname } = useLocation();
-
   const users = useUnit($users);
   const boards = useUnit($boards);
 
@@ -86,22 +83,25 @@ export default function EditForm({
 
   const { isDirty } = form.formState;
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      await dbClient.updateTask(task.id, values);
-      form.reset();
-      setIsEditModalOpen(false);
-      if (board && pathname.includes('/board/')) {
-        fetchBoardTasksFx(board.id.toString());
+  const onSubmit = useCallback(
+    async (values: z.infer<typeof formSchema>) => {
+      try {
+        await dbClient.updateTask(task.id, values);
+        form.reset();
+        setIsEditModalOpen(false);
+        if (board && pathname.includes('/board/')) {
+          fetchBoardTasksFx(board.id.toString());
+        }
+        if (pathname.includes('/issues')) {
+          fetchIssuesFx();
+        }
+        toast.success('Задача обновлена');
+      } catch (error) {
+        console.log(error);
       }
-      if (pathname.includes('/issues')) {
-        fetchIssuesFx();
-      }
-      toast.success('Задача обновлена');
-    } catch (error) {
-      console.log(error);
-    }
-  }
+    },
+    [board, pathname, setIsEditModalOpen, task.id, form],
+  );
 
   return (
     <Form {...form}>
@@ -141,7 +141,7 @@ export default function EditForm({
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value?.toString()}
-                disabled={disableBoardField ? true : false}
+                disabled={disableBoardField}
               >
                 <FormControl>
                   <SelectTrigger className="w-full">

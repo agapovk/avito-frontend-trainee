@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Issue } from '@/types';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
@@ -5,11 +6,11 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { statusMap } from '@/lib/utils';
 
 export default function IssueCard({ issue }: { issue: Issue }) {
-  const getInitials = (fullName: string): string => {
+  const getInitials = useCallback((fullName: string): string => {
     const names = fullName.split(' ');
     const initials = names.map((name) => name.charAt(0).toUpperCase());
     return initials.join('');
-  };
+  }, []);
 
   return (
     <Card className="p-0">

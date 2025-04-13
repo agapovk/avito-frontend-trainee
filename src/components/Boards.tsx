@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import BoardCard from './BoardCard';
 import { $boards, fetchBoardsFx } from '@/store/store';
 import { useUnit } from 'effector-react';
+
+const MemoizedBoardCard = React.memo(BoardCard);
 
 export default function Boards() {
   const boards = useUnit($boards);
@@ -16,7 +18,7 @@ export default function Boards() {
         <ul className="space-y-4 mx-auto max-w-2xl">
           {boards.map((board) => (
             <li key={board.id}>
-              <BoardCard board={board} />
+              <MemoizedBoardCard board={board} />
             </li>
           ))}
         </ul>

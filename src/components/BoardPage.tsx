@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Task } from '../types';
 import { statusMap } from '@/lib/utils';
@@ -12,7 +12,9 @@ export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
   const boards = useUnit($boards);
   const boardTasks = useUnit($boardTasks);
-  const tasks = id ? boardTasks[id] || [] : [];
+
+  // Memoize tasks to ensure it only recalculates when id or boardTasks change
+  const tasks = useMemo(() => (id ? boardTasks[id] || [] : []), [id, boardTasks]);
 
   useEffect(() => {
     fetchBoardsFx();
@@ -22,13 +24,15 @@ export default function BoardPage() {
   }, [id]);
 
   // Group the tasks by their status
-  const groupedTasks = tasks.reduce((acc, task) => {
-    acc[task.status] = acc[task.status] || [];
-    acc[task.status].push(task);
-    return acc;
-  }, {} as Record<string, Task[]>);
+  const groupedTasks = useMemo(() => {
+    return tasks.reduce((acc, task) => {
+      acc[task.status] = acc[task.status] || [];
+      acc[task.status].push(task);
+      return acc;
+    }, {} as Record<string, Task[]>);
+  }, [tasks]);
 
-  const board = boards.find((board) => board.id === Number(id));
+  const board = useMemo(() => boards.find((b) => b.id === Number(id)), [boards, id]);
 
   if (!board) {
     return (
@@ -40,8 +44,6 @@ export default function BoardPage() {
       </div>
     );
   }
-
-  const priorityOrder = { High: 0, Medium: 1, Low: 2 };
 
   return (
     <>
@@ -65,19 +67,11 @@ export default function BoardPage() {
                   {statusMap[status as keyof typeof statusMap].title}
                 </h3>
                 <ul className="space-y-4">
-                  {tasks
-                    // Sort the tasks by their priority: high at the top, low at the bottom
-                    .sort((a, b) => {
-                      return (
-                        priorityOrder[a.priority as keyof typeof priorityOrder] -
-                        priorityOrder[b.priority as keyof typeof priorityOrder]
-                      );
-                    })
-                    .map((task) => (
-                      <li key={task.id}>
-                        <BoardPageDialog task={task} board={board} />
-                      </li>
-                    ))}
+                  {tasks.map((task) => (
+                    <li key={task.id}>
+                      <MemoizedBoardPageDialog task={task} board={board} />
+                    </li>
+                  ))}
                 </ul>
               </div>
             ))}
@@ -86,3 +80,5 @@ export default function BoardPage() {
     </>
   );
 }
+
+const MemoizedBoardPageDialog = React.memo(BoardPageDialog);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import StatusFilter from './StatusFilter';
@@ -18,6 +18,10 @@ import { $issues, $boards, fetchIssuesFx, fetchBoardsFx } from '@/store/store';
 import EditDialog from './IssuesDialog';
 import { ArrowUp } from 'lucide-react'; // Add this import
 
+const MemoizedStatusFilter = memo(StatusFilter);
+const MemoizedBoardFilter = memo(BoardFilter);
+const MemoizedEditDialog = memo(EditDialog);
+
 export default function Issues() {
   const issues = useUnit($issues);
   const boards = useUnit($boards);
@@ -34,29 +38,12 @@ export default function Issues() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Add scroll handler
-  useEffect(() => {
-    const toggleVisibility = () => {
-      setIsVisible(window.scrollY > 300);
-    };
-
-    window.addEventListener('scroll', toggleVisibility);
-    return () => window.removeEventListener('scroll', toggleVisibility);
-  }, []);
-
-  // Add scroll to top function
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
   useEffect(() => {
     fetchBoardsFx();
     fetchIssuesFx();
   }, []);
 
+  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
@@ -65,16 +52,35 @@ export default function Issues() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const filteredIssues = issues.filter((issue) => {
-    const query = debouncedQuery.toLowerCase();
-    const matchesSearch =
-      issue.title.toLowerCase().includes(query) ||
-      issue.assignee?.fullName?.toLowerCase().includes(query);
-    const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(issue.status);
-    const matchesBoard = selectedBoards.length === 0 || selectedBoards.includes(issue.boardName);
+  // Memoize filtered results
+  const filteredIssues = useMemo(() => {
+    return issues.filter((issue) => {
+      const query = debouncedQuery.toLowerCase();
+      const matchesSearch =
+        issue.title.toLowerCase().includes(query) ||
+        issue.assignee?.fullName?.toLowerCase().includes(query);
+      const matchesStatus =
+        selectedStatuses.length === 0 || selectedStatuses.includes(issue.status);
+      const matchesBoard = selectedBoards.length === 0 || selectedBoards.includes(issue.boardName);
+      return matchesSearch && matchesStatus && matchesBoard;
+    });
+  }, [issues, debouncedQuery, selectedStatuses, selectedBoards]);
 
-    return matchesSearch && matchesStatus && matchesBoard;
-  });
+  // Add scroll handler
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, []);
+
+  // Add scroll event listener
+  useEffect(() => {
+    const toggleVisibility = () => setIsVisible(window.scrollY > 300);
+
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
 
   return (
     <>
@@ -100,11 +106,11 @@ export default function Issues() {
             )}
           </div>
           <div className="flex gap-4 items center">
-            <StatusFilter
+            <MemoizedStatusFilter
               selectedStatuses={selectedStatuses}
               setSelectedStatuses={setSelectedStatuses}
             />
-            <BoardFilter
+            <MemoizedBoardFilter
               boards={boards}
               selectedBoards={selectedBoards}
               setSelectedBoards={setSelectedBoards}
@@ -114,7 +120,7 @@ export default function Issues() {
         <ul className="space-y-4">
           {filteredIssues.map((task) => (
             <li key={task.id}>
-              <EditDialog task={task} />
+              <MemoizedEditDialog task={task} />
             </li>
           ))}
         </ul>

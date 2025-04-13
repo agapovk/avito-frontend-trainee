@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Board } from '@/types';
+import React, { useCallback } from 'react';
 
 export default function BoardFilter({
   boards,
@@ -20,11 +21,27 @@ export default function BoardFilter({
   selectedBoards: string[];
   setSelectedBoards: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
-  if (!boards) return null;
+  const handleSelect = useCallback(
+    (boardName: string) => {
+      setSelectedBoards((prev) =>
+        prev.includes(boardName) ? prev.filter((s) => s !== boardName) : [...prev, boardName],
+      );
+    },
+    [setSelectedBoards],
+  );
+
+  if (boards.length === 0) {
+    return null;
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8">
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn('h-8', selectedBoards.length > 0 && 'border-primary text-primary')}
+        >
           <CalendarSearch className="h-4 w-4" />
           Доска
         </Button>
@@ -34,17 +51,10 @@ export default function BoardFilter({
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {boards.map((board) => {
-                const isSelected = selectedBoards.includes(board.name);
+              {boards.map(({ id, name }) => {
+                const isSelected = selectedBoards.includes(name);
                 return (
-                  <CommandItem
-                    key={board.id}
-                    onSelect={() => {
-                      setSelectedBoards((prev) =>
-                        isSelected ? prev.filter((s) => s !== board.name) : [...prev, board.name],
-                      );
-                    }}
-                  >
+                  <CommandItem key={id} onSelect={() => handleSelect(name)}>
                     <div
                       className={cn(
                         'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
@@ -53,7 +63,7 @@ export default function BoardFilter({
                     >
                       <Check className="text-white" />
                     </div>
-                    {board.name}
+                    {name}
                   </CommandItem>
                 );
               })}

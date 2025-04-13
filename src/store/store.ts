@@ -1,9 +1,14 @@
-import { createStore, createEffect } from 'effector';
+import { createStore, createDomain } from 'effector';
 import { dbClient } from '@/services/dbClient';
 import { Issue, Board, User, Task } from '@/types';
 
+// Create domains for logical separation
+const appDomain = createDomain();
+const boardDomain = createDomain();
+const userDomain = createDomain();
+
 // Effects
-export const fetchIssuesFx = createEffect(async () => {
+export const fetchIssuesFx = appDomain.createEffect(async () => {
   try {
     const data = await dbClient.getTasks();
     return data;
@@ -13,7 +18,7 @@ export const fetchIssuesFx = createEffect(async () => {
   }
 });
 
-export const fetchBoardsFx = createEffect(async () => {
+export const fetchBoardsFx = boardDomain.createEffect(async () => {
   try {
     const data = await dbClient.getBoards();
     return data;
@@ -23,16 +28,17 @@ export const fetchBoardsFx = createEffect(async () => {
   }
 });
 
-export const fetchUsersFx = createEffect(async () => {
+export const fetchUsersFx = userDomain.createEffect(async () => {
   try {
     const data = await dbClient.getUsers();
     return data;
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching users:', error);
+    throw error;
   }
 });
 
-export const fetchBoardTasksFx = createEffect(async (boardId: string) => {
+export const fetchBoardTasksFx = boardDomain.createEffect(async (boardId: string) => {
   try {
     const data = await dbClient.getBoardTasks(boardId);
     return { boardId, tasks: data };
@@ -42,14 +48,37 @@ export const fetchBoardTasksFx = createEffect(async (boardId: string) => {
   }
 });
 
-// Stores
-export const $issues = createStore<Issue[]>([]).on(fetchIssuesFx.doneData, (_, issues) => issues);
-export const $users = createStore<User[]>([]).on(fetchUsersFx.doneData, (_, users) => users);
-export const $boards = createStore<Board[]>([]).on(fetchBoardsFx.doneData, (_, boards) => boards);
+// Utility for deep equality check
+const isEqual = <T>(a: T, b: T) => JSON.stringify(a) === JSON.stringify(b);
+
+// Stores with deep equality checks
+export const $issues = createStore<Issue[]>([]).on(fetchIssuesFx.doneData, (prev, next) =>
+  isEqual(prev, next) ? prev : next,
+);
+
+export const $boards = createStore<Board[]>([]).on(fetchBoardsFx.doneData, (prev, next) =>
+  isEqual(prev, next) ? prev : next,
+);
+
+export const $users = createStore<User[]>([]).on(fetchUsersFx.doneData, (prev, next) =>
+  isEqual(prev, next) ? prev : next,
+);
+
 export const $boardTasks = createStore<Record<string, Task[]>>({}).on(
   fetchBoardTasksFx.doneData,
-  (state, result) => ({
-    ...state,
-    [result.boardId]: result.tasks,
-  }),
+  (state, result) => {
+    const currentTasks = state[result.boardId] || [];
+    return isEqual(currentTasks, result.tasks)
+      ? state
+      : { ...state, [result.boardId]: result.tasks };
+  },
 );
+
+// Unified error handling
+const handleError = (error: Error) => {
+  console.error('API Error:', error);
+};
+
+[fetchIssuesFx, fetchBoardsFx, fetchUsersFx, fetchBoardTasksFx].forEach((effect) => {
+  effect.fail.watch(({ error }) => handleError(error));
+});

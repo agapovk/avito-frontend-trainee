@@ -1,5 +1,4 @@
-'use client';
-
+import React, { useEffect, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -21,7 +20,6 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from './ui/textarea';
-import { useEffect } from 'react';
 import { dbClient } from '@/services/dbClient';
 import { toast } from 'sonner';
 import {
@@ -63,30 +61,29 @@ export default function NewForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
-      description: undefined,
-      priority: undefined,
-      boardId: undefined,
-      assigneeId: undefined,
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      await dbClient.createTask(values);
-      form.reset();
-      setIsModalOpen(false);
-      if (pathname.includes('/board')) {
-        const boardId = pathname.split('/')[2];
-        fetchBoardTasksFx(boardId);
+  const onSubmit = useCallback(
+    async (values: z.infer<typeof formSchema>) => {
+      try {
+        await dbClient.createTask(values);
+        form.reset();
+        setIsModalOpen(false);
+        if (pathname.includes('/board')) {
+          const boardId = pathname.split('/')[2];
+          fetchBoardTasksFx(boardId);
+        }
+        if (pathname.includes('/issues')) {
+          fetchIssuesFx();
+        }
+        toast.success('Задача создана');
+      } catch (error) {
+        console.log(error);
       }
-      if (pathname.includes('/issues')) {
-        fetchIssuesFx();
-      }
-      toast.success('Задача создана');
-    } catch (error) {
-      console.log(error);
-    }
-  }
+    },
+    [pathname, setIsModalOpen, form],
+  );
 
   return (
     <Form {...form}>

@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import NewForm from './NewForm';
-import { useState } from 'react';
 
 const menuItems = [
   {
@@ -22,7 +22,8 @@ const menuItems = [
     href: '/boards',
   },
 ];
-export default function Header() {
+
+const Header = React.memo(function Header() {
   const { pathname } = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -30,10 +31,10 @@ export default function Header() {
     <header className="border-b">
       <nav className="flex justify-between items-center p-4 mx-auto md:max-w-5xl">
         <ul className="flex items-center gap-4">
-          {menuItems.map((item, index) => (
+          {menuItems.map(({ title, href }, index) => (
             <li key={index}>
-              <Button variant="link" className={cn('px-0', pathname === item.href && 'underline')}>
-                <Link to={item.href}>{item.title}</Link>
+              <Button variant="link" className={cn('px-0', pathname === href && 'underline')}>
+                <Link to={href}>{title}</Link>
               </Button>
             </li>
           ))}
@@ -53,4 +54,6 @@ export default function Header() {
       </nav>
     </header>
   );
-}
+});
+
+export default Header;

@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/command';
 import { cn, statusMap } from '@/lib/utils';
 import { Button } from './ui/button';
+import React, { useCallback } from 'react';
 
 export default function StatusFilter({
   selectedStatuses,
@@ -17,6 +18,15 @@ export default function StatusFilter({
   selectedStatuses: string[];
   setSelectedStatuses: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
+  const handleSelect = useCallback(
+    (status: string) => {
+      setSelectedStatuses((prev) =>
+        prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
+      );
+    },
+    [setSelectedStatuses],
+  );
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -34,17 +44,10 @@ export default function StatusFilter({
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup>
-              {Object.keys(statusMap).map((status) => {
+              {Object.entries(statusMap).map(([status, { title }]) => {
                 const isSelected = selectedStatuses.includes(status);
                 return (
-                  <CommandItem
-                    key={status}
-                    onSelect={() => {
-                      setSelectedStatuses((prev) =>
-                        isSelected ? prev.filter((s) => s !== status) : [...prev, status],
-                      );
-                    }}
-                  >
+                  <CommandItem key={status} onSelect={() => handleSelect(status)}>
                     <div
                       className={cn(
                         'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border',
@@ -53,7 +56,7 @@ export default function StatusFilter({
                     >
                       <Check className="text-white" />
                     </div>
-                    {statusMap[status as keyof typeof statusMap].title}
+                    {title}
                   </CommandItem>
                 );
               })}

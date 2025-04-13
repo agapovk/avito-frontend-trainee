@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import IssueCard from './IssueCard';
 import {
   Dialog,
@@ -13,14 +13,19 @@ import { useUnit } from 'effector-react';
 import { $boards } from '@/store/store';
 import { Issue } from '@/types';
 
+const MemoizedIssueCard = React.memo(IssueCard);
+
 export default function EditDialog({ task }: { task: Issue }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const boards = useUnit($boards);
+
+  const board = boards.find((b) => b.name.toLowerCase() === task.boardName.toLowerCase());
+
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogTrigger asChild>
         <div className="cursor-pointer">
-          <IssueCard issue={task} />
+          <MemoizedIssueCard issue={task} />
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-4xl">
@@ -30,7 +35,7 @@ export default function EditDialog({ task }: { task: Issue }) {
         </DialogHeader>
         <EditForm
           task={task}
-          board={boards.find((b) => b.name.toLowerCase() === task.boardName.toLowerCase())}
+          board={board}
           showBoardButton={true}
           setIsEditModalOpen={setIsModalOpen}
         />
