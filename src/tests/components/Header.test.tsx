@@ -20,23 +20,15 @@ import Header from '@/components/Header';
 // },
 
 describe('Header', () => {
-  it('should render links', () => {
+  it('Should render links and create button', () => {
     render(
       <MemoryRouter>
         <Header />
       </MemoryRouter>,
     );
     const menuItems = screen.getAllByRole('link');
-    expect(menuItems.length).toBeGreaterThan(0);
-  });
-
-  it('should render create button', () => {
-    render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>,
-    );
     const createButton = screen.getByText('Создать задачу');
+    expect(menuItems.length).toBeGreaterThan(0);
     expect(createButton).toBeInTheDocument();
   });
 });

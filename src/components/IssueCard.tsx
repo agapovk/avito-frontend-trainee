@@ -14,7 +14,7 @@ export default function IssueCard({ issue }: { issue: Issue }) {
   return (
     <Card className="p-0">
       <CardContent className="py-4">
-        <p className="font-semibold px-0 text-md truncate">{issue.title}</p>
+        <h3 className="font-semibold px-0 text-md truncate">{issue.title}</h3>
         <p className="text-muted-foreground text-sm truncate">{issue.boardName}</p>
         <div className="flex flex-col sm:flex-row justify-between sm:items-end mt-4 gap-2">
           <div className="flex items-center space-x-4">
