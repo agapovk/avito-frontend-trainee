@@ -69,6 +69,14 @@ export default function Issues() {
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
+  if (issues.length === 0) {
+    return (
+      <div className="flex justify-center pt-8">
+        <p>Задачи не найдены, попробуйте обновить старницу</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <section className="space-y-4 mx-auto max-w-2xl">

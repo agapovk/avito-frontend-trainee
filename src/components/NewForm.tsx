@@ -85,6 +85,14 @@ export default function NewForm({
     [pathname, setIsModalOpen, form],
   );
 
+  if (users.length === 0 || boards.length === 0) {
+    return (
+      <div className="flex justify-center py-8">
+        <p>Ошибка загузки данных, попробуйте перезагрузить старницу</p>
+      </div>
+    );
+  }
+
   return (
     <Form {...form}>
       <form

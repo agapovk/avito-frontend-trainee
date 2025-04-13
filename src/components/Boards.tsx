@@ -12,6 +12,14 @@ export default function Boards() {
     fetchBoardsFx();
   }, []);
 
+  if (boards.length === 0) {
+    return (
+      <div className="flex justify-center pt-8">
+        <p>Проекты не найдены, попробуйте обновить старницу</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <section className="space-y-4">
