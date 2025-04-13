@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "cd server && go run cmd/service/main.go",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "format": "npx prettier --write .",

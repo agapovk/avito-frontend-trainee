@@ -48,7 +48,13 @@ pnpm install
 pnpm dev
 ```
 
-3. **Access the application**: Open your browser and navigate to
+3. **Start the development server**:
+
+```bash
+pnpm run server
+```
+
+4. **Access the application**: Open your browser and navigate to
 
 ```
 http://localhost:5173

@@ -17,6 +17,7 @@ import { useUnit } from 'effector-react';
 import { $issues, $boards, fetchIssuesFx, fetchBoardsFx } from '@/store/store';
 import EditDialog from './IssuesDialog';
 import { ArrowUp } from 'lucide-react'; // Add this import
+import { useDebounce } from '@/hooks/useDebounce';
 
 const MemoizedStatusFilter = memo(StatusFilter);
 const MemoizedBoardFilter = memo(BoardFilter);
@@ -26,31 +27,17 @@ export default function Issues() {
   const issues = useUnit($issues);
   const boards = useUnit($boards);
 
-  useEffect(() => {
-    fetchBoardsFx();
-    fetchIssuesFx();
-  }, []);
-
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedBoards, setSelectedBoards] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const debouncedQuery = useDebounce(searchQuery, 300);
 
   useEffect(() => {
     fetchBoardsFx();
     fetchIssuesFx();
   }, []);
-
-  // Debounce search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
 
   // Memoize filtered results
   const filteredIssues = useMemo(() => {

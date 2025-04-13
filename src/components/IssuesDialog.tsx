@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import IssueCard from './IssueCard';
 import {
   Dialog,
@@ -19,7 +19,10 @@ export default function EditDialog({ task }: { task: Issue }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const boards = useUnit($boards);
 
-  const board = boards.find((b) => b.name.toLowerCase() === task.boardName.toLowerCase());
+  const board = useMemo(
+    () => boards.find((b) => b.name.toLowerCase() === task.boardName.toLowerCase()),
+    [boards, task],
+  );
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

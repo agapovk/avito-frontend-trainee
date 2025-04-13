@@ -10,7 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Board } from '@/types';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export default function BoardFilter({
   boards,
@@ -21,14 +21,11 @@ export default function BoardFilter({
   selectedBoards: string[];
   setSelectedBoards: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
-  const handleSelect = useCallback(
-    (boardName: string) => {
-      setSelectedBoards((prev) =>
-        prev.includes(boardName) ? prev.filter((s) => s !== boardName) : [...prev, boardName],
-      );
-    },
-    [setSelectedBoards],
-  );
+  const handleSelect = (boardName: string) => {
+    setSelectedBoards((prev) =>
+      prev.includes(boardName) ? prev.filter((s) => s !== boardName) : [...prev, boardName],
+    );
+  };
 
   if (boards.length === 0) {
     return null;

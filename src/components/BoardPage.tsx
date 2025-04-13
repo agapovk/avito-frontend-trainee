@@ -12,9 +12,7 @@ export default function BoardPage() {
   const { id } = useParams<{ id: string }>();
   const boards = useUnit($boards);
   const boardTasks = useUnit($boardTasks);
-
-  // Memoize tasks to ensure it only recalculates when id or boardTasks change
-  const tasks = useMemo(() => (id ? boardTasks[id] || [] : []), [id, boardTasks]);
+  const tasks = useMemo(() => (id ? boardTasks[id] ?? [] : []), [id, boardTasks]);
 
   useEffect(() => {
     fetchBoardsFx();

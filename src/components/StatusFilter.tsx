@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/command';
 import { cn, statusMap } from '@/lib/utils';
 import { Button } from './ui/button';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 export default function StatusFilter({
   selectedStatuses,
@@ -18,14 +18,11 @@ export default function StatusFilter({
   selectedStatuses: string[];
   setSelectedStatuses: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
-  const handleSelect = useCallback(
-    (status: string) => {
-      setSelectedStatuses((prev) =>
-        prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
-      );
-    },
-    [setSelectedStatuses],
-  );
+  const handleSelect = (status: string) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status],
+    );
+  };
 
   return (
     <Popover>
